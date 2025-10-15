@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: tutorchat
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: HF_HUB_DISABLE_PROGRESS_BARS
+        value: "1"
+      - key: TRANSFORMERS_CACHE
+        value: "/opt/render/project/src/models"
+      - key: HF_HOME
+        value: "/opt/render/project/src/models"
