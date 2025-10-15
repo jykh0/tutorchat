@@ -348,7 +348,8 @@ if __name__ == '__main__':
     print("3. Sufficient disk space (models are ~1-3GB each)")
     print("\nModels will be downloaded automatically on first use.")
     print("Starting Flask server...")
-    print("Access the app at: http://localhost:5000")
     print("=" * 60)
     
-    app.run(debug=True, port=5000)
+    # Use PORT environment variable for deployment platforms like Render
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
