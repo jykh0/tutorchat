@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            padding: 40px;
+        }
+
+        .upload-section {
+            display: block;
+        }
+
+        .chat-section {
+            display: none;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 40px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed #fff;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-upload-wrapper:hover {
+            background-color: #1a1a1a;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .upload-text {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .upload-subtext {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border: 1px solid #fff;
+            display: none;
+        }
+
+        .file-item {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #000;
+            border: 1px solid #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item span {
+            font-size: 0.9em;
+        }
+
+        .remove-file {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .remove-file:hover {
+            background: #ccc;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #fff;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #ccc;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 18px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background-color: #e0e0e0;
+        }
+
+        .start-btn:disabled {
+            background-color: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #fff;
+        }
+
+        .chat-header h2 {
+            font-size: 1.8em;
+        }
+
+        .back-btn {
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .chat-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border: 1px solid #fff;
+            font-size: 0.9em;
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #0a0a0a;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 0;
+        }
+
+        .user-message {
+            background-color: #fff;
+            color: #000;
+            margin-left: 20%;
+        }
+
+        .bot-message {
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 1px solid #fff;
+            margin-right: 20%;
+        }
+
+        .message-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #fff;
+            font-size: 1em;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #ccc;
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background-color: #e0e0e0;
+        }
+
+        .send-btn:disabled {
+            background-color: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: #aaa;
+            font-style: italic;
+            padding: 10px;
+        }
+
+        .error-message {
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <h1>PDF Chat</h1>
+            <p class="subtitle">Upload PDFs and chat with AI about their content</p>
+
+            <div class="form-group">
+                <label>Upload PDF(s)</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="pdfUpload" accept=".pdf" multiple>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-subtext">PDF files only (multiple allowed)</div>
+                </div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="modelSelect">Select Model</label>
+                <select id="modelSelect">
+                    <option value="">-- Choose a model --</option>
+                    <option value="model1">TinyLlama (Small & Fast)</option>
+                    <option value="model2">Phi (Small & Efficient)</option>
+                </select>
+            </div>
+
+            <button class="start-btn" id="startBtn" disabled>Start Chat</button>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section" id="chatSection">
+            <div class="chat-header">
+                <h2>Chat</h2>
+                <button class="back-btn" id="backBtn">← Back</button>
+            </div>
+
+            <div class="chat-info" id="chatInfo">
+                <strong>Files:</strong> <span id="fileNames"></span><br>
+                <strong>Model:</strong> <span id="selectedModel"></span>
+            </div>
+
+            <div class="chat-box" id="chatBox">
+                <div class="message bot-message">
+                    <div class="message-label">AI</div>
+                    <div>Hello! I've processed your PDF(s). Ask me anything about the content.</div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question about the PDF...">
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let files = [];
+        let sessionId = null;
+        const pdfUpload = document.getElementById('pdfUpload');
+        const fileList = document.getElementById('fileList');
+        const modelSelect = document.getElementById('modelSelect');
+        const startBtn = document.getElementById('startBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const chatSection = document.getElementById('chatSection');
+        const backBtn = document.getElementById('backBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatBox = document.getElementById('chatBox');
+        const fileNames = document.getElementById('fileNames');
+        const selectedModel = document.getElementById('selectedModel');
+
+        pdfUpload.addEventListener('change', (e) => {
+            const newFiles = Array.from(e.target.files);
+            files = [...files, ...newFiles];
+            updateFileList();
+            checkStartButton();
+        });
+
+        function updateFileList() {
+            if (files.length === 0) {
+                fileList.style.display = 'none';
+                return;
+            }
+
+            fileList.style.display = 'block';
+            fileList.innerHTML = files.map((file, idx) => `
+                <div class="file-item">
+                    <span>${file.name}</span>
+                    <button class="remove-file" onclick="removeFile(${idx})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(idx) {
+            files.splice(idx, 1);
+            updateFileList();
+            checkStartButton();
+        }
+
+        modelSelect.addEventListener('change', checkStartButton);
+
+        function checkStartButton() {
+            startBtn.disabled = !(files.length > 0 && modelSelect.value);
+        }
+
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            startBtn.textContent = 'Processing PDFs...';
+
+            const formData = new FormData();
+            files.forEach(file => formData.append('pdfs', file));
+            formData.append('model', modelSelect.value);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                sessionId = data.session_id;
+                fileNames.textContent = data.files_processed.join(', ');
+                selectedModel.textContent = modelSelect.options[modelSelect.selectedIndex].text;
+
+                uploadSection.style.display = 'none';
+                chatSection.style.display = 'block';
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Chat';
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            if (confirm('Are you sure? You will need to re-upload your PDFs.')) {
+                chatSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+                chatBox.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-label">AI</div>
+                        <div>Hello! I've processed your PDF(s). Ask me anything about the content.</div>
+                    </div>
+                `;
+                chatInput.value = '';
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Chat';
+            }
+        });
+
+        async function sendMessage() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+
+            addMessage(msg, 'user');
+            chatInput.value = '';
+            sendBtn.disabled = true;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.id = 'loading';
+            loadingDiv.textContent = 'AI is thinking...';
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: msg,
+                        session_id: sessionId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Chat failed');
+                }
+
+                document.getElementById('loading').remove();
+                addMessage(data.response, 'bot');
+
+            } catch (error) {
+                document.getElementById('loading').remove();
+                addMessage('Error: ' + error.message, 'bot');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}-message`;
+            msgDiv.innerHTML = `
+                <div class="message-label">${sender === 'user' ? 'You' : 'AI'}</div>
+                <div>${text}</div>
+            `;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
