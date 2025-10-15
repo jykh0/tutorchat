@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import os
+import sys
 import PyPDF2
 import re
 import torch
@@ -338,6 +339,7 @@ if __name__ == '__main__':
     print("PDF Chat Application with Hugging Face Models")
     print("=" * 60)
     print(f"Device: {device}")
+    print(f"Python version: {sys.version}")
     print("\nAvailable models:")
     for model_key, config in MODELS.items():
         print(f"   - {config['name']} ({config['model_id']})")
@@ -352,4 +354,11 @@ if __name__ == '__main__':
     
     # Use PORT environment variable for deployment platforms like Render
     port = int(os.environ.get('PORT', 5000))
+    print(f"Starting server on host=0.0.0.0, port={port}")
+    
+    # Add a simple health check route
+    @app.route('/health')
+    def health():
+        return {'status': 'healthy', 'message': 'PDF Chat App is running'}
+    
     app.run(host='0.0.0.0', port=port, debug=False)

@@ -3,11 +3,15 @@ services:
     name: tutorchat
     env: python
     plan: starter
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: python app.py
     envVars:
       - key: PYTHON_VERSION
         value: "3.11"
+      - key: DISABLE_POETRY
+        value: "1"
       - key: HF_HUB_DISABLE_PROGRESS_BARS
         value: "1"
       - key: TRANSFORMERS_CACHE
